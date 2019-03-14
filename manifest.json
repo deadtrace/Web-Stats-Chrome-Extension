@@ -1,0 +1,24 @@
+{
+    "name": "Web Stats",
+    "description": "Collecting your web statistics",
+    "version": "1.0",
+    "manifest_version": 2,
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": "stats.png"
+    },
+    "icons": {
+        "16": "stats.png",
+        "48": "stats.png",
+        "128": "stats.png"
+    },
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+S",
+                "mac": "MacCtrl+Shift+S"
+            },
+            "desctiption": "Shows popup.html"
+        }
+    }
+}
