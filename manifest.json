@@ -12,6 +12,13 @@
         "48": "stats.png",
         "128": "stats.png"
     },
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "permissions": [
+        "tabs"
+    ],
     "commands": {
         "_execute_browser_action": {
             "suggested_key": {
