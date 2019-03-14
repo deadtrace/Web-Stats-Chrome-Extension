@@ -6,14 +6,15 @@ return (new Date()).getTime();
 
 lastTime = time();
 currentURL = "";
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    currentURL = tabs[0].url;
-})
 
-function changePage(url) {
-    console.log("you were on ", currentURL, time() - lastTime, "ms");
+function shrinkURL(url) {
+    return (new URL(url)).hostname;
+}
+
+function changePage(tab) {
+    console.log("you were on", currentURL, time() - lastTime, "ms");
     lastTime = time();
-    currentURL = url;
+    currentURL = shrinkURL(tab.url);
 }
 
 counter = 0 
@@ -25,7 +26,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         //console.log("tabId", tabId); 
         //console.log("changeInfo", changeInfo); 
         //console.log("tab", tab) 
-        changePage(tab.url);
+        changePage(tab);
     };
 }); 
 
@@ -36,6 +37,6 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
     //console.log("activeInfo", activeInfo);
     
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        changePage(tabs[0].url)
+        changePage(tabs[0])
     })
 });
