@@ -5,37 +5,29 @@ function time() {
 } 
 
 lastTime = time();
-currentURL = "";
+currentURL = "None";
 
 function shrinkURL(url) {
     return (new URL(url)).hostname;
 }
 
-// function getActiveURL(callback){
-//     chrome.tabs.query({
-//         active: true,
-//         currentWindow: true
-//     }, function(tabs) {
-//         callback(shrinkURL(tabs[0].url));
-//     })
-//     console.log("where am i");
-// }
-
-function getActiveURLfromTabs(tabs) {
+function getActiveTab(tabs) {
     for (let i = 0; i < tabs.length; i++) {
         if (tabs[i].active) {
-            return shrinkURL(tabs[i].url);
+            return tabs[i];
         }
     }
 }
 
-chrome.tabs.query({active: true}, function(tabs) {
-    var t = tabs[0].url;
-    currentURL = shrinkURL(t);
-})
+function stopTracking() {
+    if (currentURL != "None") {
+		console.log("you were on", currentURL, time() - lastTime, "ms");
+    }
+    currentURL = "None";
+}
 
 function changePage(tab) {
-    if (currentURL != "") {
+    if (currentURL != "None") {
 		console.log("you were on", currentURL, time() - lastTime, "ms");
 	}
     lastTime = time();
@@ -44,7 +36,7 @@ function changePage(tab) {
 
 counter = 0 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status == "loading") {
+    if (changeInfo.status == "complete") {
         counter++; 
         console.log(""); 
         console.log(counter + " tab content changed at " + time()); 
@@ -69,24 +61,14 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 
 chrome.windows.onFocusChanged.addListener(function() {
     console.log("");
-    chrome.windows.getCurrent({populate: true}, function(window) {
+    chrome.windows.getLastFocused({populate: true}, function(window) {
+        if (window.focused){
         counter++;
-        console.log(counter, window.tabs);
-        
-        console.log(getActiveURLfromTabs(window.tabs));
-
-        // getActiveURL(function(a, b) {
-        //     console.log(a, b);
-        // })
-
-
-
+        console.log(counter, window);
+        changePage(getActiveTab(window.tabs));
+        } else {
+            console.log("You're unfocused from Chrome now");
+            stopTracking();
+        }
     });
 });
-/*
-window.onblur = function() {
-	counter++;
-    console.log("");
-    console.log("window is blured");
-}
-*/
