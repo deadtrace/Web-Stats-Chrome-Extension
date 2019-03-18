@@ -1,8 +1,8 @@
-console.log("background.js is loaded"); 
+console.log("background.js is loaded");
 
-function time() { 
-    return (new Date()).getTime(); 
-} 
+function time() {
+    return (new Date()).getTime();
+}
 
 lastTime = time();
 currentURL = "None";
@@ -19,41 +19,39 @@ function getActiveTab(tabs) {
     }
 };
 
-function stopTracking() {
+function changePage(url) {
     if (currentURL != "None") {
-		console.log("you were on", currentURL, time() - lastTime, "ms");
+        console.log("you were on", currentURL, time() - lastTime, "ms");
+        addTime(currentURL, time() - lastTime);
     }
-    currentURL = "None";
-};
-
-function changePage(tab) {
-    if (currentURL != "None") {
-		console.log("you were on", currentURL, time() - lastTime, "ms");
-	}
-    lastTime = time();
-    currentURL = shrinkURL(tab.url);
+    if (url == null) {
+        currentURL = "None";
+    } else {
+        lastTime = time();
+        currentURL = shrinkURL(url);
+    }
 };
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status == "complete" && tab.active) {
-            changePage(tab);
-        };
-}); 
+        changePage(tab.url);
+    };
+});
 
-chrome.tabs.onActivated.addListener(() => { 
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        changePage(tabs[0]);
+chrome.tabs.onActivated.addListener(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        changePage(tabs[0].url);
     })
 });
 
 
 chrome.windows.onFocusChanged.addListener((windowID) => {
-    if (windowID == chrome.windows.WINDOW_ID_NONE){
+    if (windowID == chrome.windows.WINDOW_ID_NONE) {
         //console.log("All windows lost focus");
-        stopTracking();
+        changePage(null);
     } else {
-        chrome.windows.getLastFocused({populate: true}, (window) => {
-            changePage(getActiveTab(window.tabs));
+        chrome.windows.getLastFocused({ populate: true }, (window) => {
+            changePage(getActiveTab(window.tabs).url);
         });
     }
 });

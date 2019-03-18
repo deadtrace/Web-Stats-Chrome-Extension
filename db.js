@@ -50,7 +50,7 @@ function addTime(url, time) {
             }
         }
         request1.onerror = function(e) {
-            
+            console.log("smth is wrong");            
         }
         tx.oncomplete = function() {
             console.log('tx complete');
@@ -58,6 +58,13 @@ function addTime(url, time) {
     });
 }
 
-addTime("vitaly.hard.dick.uk", 17000);
-addTime("maidan.ua", 133700);
-addTime("hltv.org", 999999);
+function clearDB(){
+    promiseDB.then(function() {
+        tx = db.transaction(["urlOS"], "readwrite");
+        urlOS = tx.objectStore("urlOS");
+        request = urlOS.clear();
+        request.onsuccess = function(e) {
+            console.log("DB was cleared");
+        }
+    });
+}
