@@ -34,41 +34,26 @@ function changePage(tab) {
     currentURL = shrinkURL(tab.url);
 };
 
-counter = 0;
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status == "complete" && tab.active) {
-            counter++; 
-            console.log(""); 
-            console.log(counter + " tab content changed at " + time()); 
-            //console.log("tabId", tabId); 
-            //console.log("changeInfo", changeInfo); 
-            //console.log("tab", tab) 
             changePage(tab);
         };
 }); 
 
-chrome.tabs.onActivated.addListener((activeInfo) => { 
-    counter++; 
-    console.log(""); 
-    console.log(counter + " tab activated at " + time()) 
-    //console.log("activeInfo", activeInfo);
-    
+chrome.tabs.onActivated.addListener(() => { 
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        changePage(tabs[0])
+        changePage(tabs[0]);
     })
 });
 
 
-chrome.windows.onFocusChanged.addListener(function() {
-    console.log("");
-    chrome.windows.getLastFocused({populate: true}, function(window) {
-        if (window.focused){
-        counter++;
-        console.log(counter, window);
-        changePage(getActiveTab(window.tabs));
-        } else {
-            console.log("You're unfocused from Chrome now");
-            stopTracking();
-        }
-    });
+chrome.windows.onFocusChanged.addListener((windowID) => {
+    if (windowID == chrome.windows.WINDOW_ID_NONE){
+        //console.log("All windows lost focus");
+        stopTracking();
+    } else {
+        chrome.windows.getLastFocused({populate: true}, (window) => {
+            changePage(getActiveTab(window.tabs));
+        });
+    }
 });
