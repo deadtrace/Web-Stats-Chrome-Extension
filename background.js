@@ -9,22 +9,22 @@ currentURL = "None";
 
 function shrinkURL(url) {
     return (new URL(url)).hostname;
-}
+};
 
 function getActiveTab(tabs) {
-    for (let i = 0; i < tabs.length; i++) {
+    for (i in tabs) {
         if (tabs[i].active) {
             return tabs[i];
         }
     }
-}
+};
 
 function stopTracking() {
     if (currentURL != "None") {
 		console.log("you were on", currentURL, time() - lastTime, "ms");
     }
     currentURL = "None";
-}
+};
 
 function changePage(tab) {
     if (currentURL != "None") {
@@ -32,19 +32,19 @@ function changePage(tab) {
 	}
     lastTime = time();
     currentURL = shrinkURL(tab.url);
-}
+};
 
-counter = 0 
+counter = 0;
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status == "complete") {
-        counter++; 
-        console.log(""); 
-        console.log(counter + " tab content changed at " + time()); 
-        //console.log("tabId", tabId); 
-        //console.log("changeInfo", changeInfo); 
-        //console.log("tab", tab) 
-        changePage(tab);
-    };
+    if (changeInfo.status == "complete" && tab.active) {
+            counter++; 
+            console.log(""); 
+            console.log(counter + " tab content changed at " + time()); 
+            //console.log("tabId", tabId); 
+            //console.log("changeInfo", changeInfo); 
+            //console.log("tab", tab) 
+            changePage(tab);
+        };
 }); 
 
 chrome.tabs.onActivated.addListener((activeInfo) => { 
