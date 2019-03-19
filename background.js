@@ -35,7 +35,7 @@ currentURL = "None";
 function UpdateBadge() {
     var now = time();
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        if (typeof tabs[0] !== "undefined"){
+        if (typeof tabs[0] !== "undefined" && lastState){
             chrome.browserAction.setBadgeText({ 'tabId': tabs[0].id, 'text': badgeTime(now - lastTime)});
         }
     });
@@ -82,12 +82,24 @@ chrome.tabs.onActivated.addListener(() => {
 
 
 chrome.windows.onFocusChanged.addListener((windowID) => {
-    if (windowID == chrome.windows.WINDOW_ID_NONE) {
-        changePage(null);
-    } else {
+    if (windowID != chrome.windows.WINDOW_ID_NONE) {
         chrome.windows.getLastFocused({ populate: true }, (window) => {
             changePage(getActiveTab(window.tabs).url);
         });
     }
 });
+
+var lastState = true;
+function checkBrowserFocus(){
+    chrome.windows.getCurrent((browser) => {
+      if (lastState && !browser.focused){
+          changePage(null);
+          lastState = false;
+      } else if (!lastState && browser.focused){
+          lastState = true;
+      }
+    })
+}
+
+window.setInterval(checkBrowserFocus, 1000);  
 
