@@ -68,19 +68,23 @@ function clearDB(){
     });
 }
 
-function getList(callback) {
+function getList(count, callback) {
     promiseDB.then(function() {
         let tx = db.transaction(["urlOS"], "readonly");
         let urlOS = tx.objectStore("urlOS");
         let index = urlOS.index("timeIndex");
+        let now = 0;
         index.openCursor(null, "prev").onsuccess = function(e) {
-            var cursor = e.target.result;
-            if (cursor) {
-            callback(cursor.value);
-            console.log(cursor.key, " ", cursor.value.time);
-            cursor.continue();
-            } else {
-                console.log("All items were displayed")
+            if (count == null || now < count) {
+                var cursor = e.target.result;
+                if (cursor) {
+                callback(cursor.value);
+                console.log(cursor.key, " ", cursor.value.time);
+                now++;
+                cursor.continue();
+                } else {
+                    console.log("All items were displayed")
+                }
             }
         }
     });

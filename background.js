@@ -59,6 +59,9 @@ function getActiveTab(tabs) {
 };
 
 function changePage(url) {
+    if (currentURL == url) {
+        return;
+    }
     if (currentURL != "None") {
         console.log("you were on", currentURL, time() - lastTime, "ms");
         addTime(currentURL, time() - lastTime);
@@ -66,20 +69,20 @@ function changePage(url) {
     if (url == null) {
         currentURL = "None";
     } else {
-        currentURL = shrinkURL(url);
+        currentURL = url;
     }
     lastTime = time();
 };
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status == "complete" && tab.active) {
-        changePage(tab.url);
+        changePage(shrinkURL(tab.url));
     };
 });
 
 chrome.tabs.onActivated.addListener(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        changePage(tabs[0].url);
+        changePage(shrinkURL(tabs[0].url));
     })
 });
 
@@ -87,7 +90,7 @@ chrome.tabs.onActivated.addListener(() => {
 chrome.windows.onFocusChanged.addListener((windowID) => {
     if (windowID != chrome.windows.WINDOW_ID_NONE) {
         chrome.windows.getLastFocused({ populate: true }, (window) => {
-            changePage(getActiveTab(window.tabs).url);
+            changePage(shrinkURL(getActiveTab(window.tabs).url));
         });
     } else {
         changePage(null);
@@ -96,7 +99,7 @@ chrome.windows.onFocusChanged.addListener((windowID) => {
 
 var lastState = true;
 function checkBrowserFocus(){
-    chrome.windows.getAll(function(windows) {
+    chrome.windows.getAll({ populate: true }, function(windows) {
         if (lastState) { 
             for (i in windows) { //все расфокус
                 if (windows[i].focused) {
@@ -110,6 +113,7 @@ function checkBrowserFocus(){
         if (!lastState) { //происходит фокус и если был расфокус
             for (i in windows) {
                 if (windows[i].focused) {
+                    changePage(shrinkURL((getActiveTab(windows[i].tabs)).url));
                     lastState = true;
                     break;
                 }
