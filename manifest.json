@@ -17,7 +17,8 @@
         "persistent": false
     },
     "permissions": [
-        "tabs"
+        "tabs",
+        "contextMenus"
     ],
     "commands": {
         "_execute_browser_action": {

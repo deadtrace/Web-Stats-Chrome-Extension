@@ -1,5 +1,19 @@
 console.log("background.js is loaded");
 
+chrome.runtime.onInstalled.addListener(function() {
+    chrome.contextMenus.create({
+		"id": "list",
+		"title": "Посмотреть полную статистику",
+		"contexts": ["browser_action"]
+	});
+});
+
+chrome.contextMenus.onClicked.addListener(function(clickData) {
+	if (clickData.menuItemId == "list") {
+        chrome.tabs.create({url: "list.html"});
+    }
+});
+
 function time() {
     return (new Date()).getTime();
 }

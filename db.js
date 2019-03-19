@@ -3,7 +3,6 @@ console.log("db.js is loaded");
 let db;
 
 promiseDB = new Promise(function(resolve, reject) {
-    // let dbPromise = new Promise(function(resolve, reject) {
     let openRequest = window.indexedDB.open("store", 1);
 
     openRequest.onupgradeneeded = function(e) {
@@ -65,6 +64,34 @@ function clearDB(){
         request = urlOS.clear();
         request.onsuccess = function(e) {
             console.log("DB was cleared");
+        }
+    });
+}
+
+// function getList() {
+//     promiseDB.then(function() {
+//         let tx = db.transaction(["urlOS"], "readonly");
+//         let urlOS = tx.objectStore("urlOS");
+//         return urlOS.getAll();
+//     }).then(function(items) {
+//         console.log(items);
+//     });
+// }
+
+function getList(callback) {
+    promiseDB.then(function() {
+        let tx = db.transaction(["urlOS"], "readonly");
+        let urlOS = tx.objectStore("urlOS");
+        let index = urlOS.index("timeIndex");
+        index.openCursor(null, "prev").onsuccess = function(e) {
+            var cursor = e.target.result;
+            if (cursor) {
+            callback(cursor.value);
+            console.log(cursor.key, " ", cursor.value.time);
+            cursor.continue();
+            } else {
+                console.log("All items were displayed")
+            }
         }
     });
 }
