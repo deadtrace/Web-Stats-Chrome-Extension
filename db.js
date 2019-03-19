@@ -68,16 +68,6 @@ function clearDB(){
     });
 }
 
-// function getList() {
-//     promiseDB.then(function() {
-//         let tx = db.transaction(["urlOS"], "readonly");
-//         let urlOS = tx.objectStore("urlOS");
-//         return urlOS.getAll();
-//     }).then(function(items) {
-//         console.log(items);
-//     });
-// }
-
 function getList(callback) {
     promiseDB.then(function() {
         let tx = db.transaction(["urlOS"], "readonly");

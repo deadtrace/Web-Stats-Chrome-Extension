@@ -5,7 +5,9 @@ chrome.runtime.onInstalled.addListener(function() {
 		"id": "list",
 		"title": "Посмотреть полную статистику",
 		"contexts": ["browser_action"]
-	});
+    });
+    chrome.browserAction.setBadgeText({ 'text': '?'});
+    chrome.browserAction.setBadgeBackgroundColor({ 'color': "black" });
 });
 
 chrome.contextMenus.onClicked.addListener(function(clickData) {
@@ -18,8 +20,28 @@ function time() {
     return (new Date()).getTime();
 }
 
+function badgeTime(time) {
+    let m = parseInt(time / 60000);
+    if (m == 0){
+        return parseInt(time / 1000)+"s";
+    } else {
+        return m+"m";
+    }
+}
+
 lastTime = time();
 currentURL = "None";
+
+function UpdateBadge() {
+    var now = time();
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        if (typeof tabs[0] !== "undefined"){
+            chrome.browserAction.setBadgeText({ 'tabId': tabs[0].id, 'text': badgeTime(now - lastTime)});
+        }
+    });
+}
+
+setInterval(UpdateBadge, 1000);
 
 function shrinkURL(url) {
     return (new URL(url)).hostname;
@@ -41,9 +63,9 @@ function changePage(url) {
     if (url == null) {
         currentURL = "None";
     } else {
-        lastTime = time();
         currentURL = shrinkURL(url);
     }
+    lastTime = time();
 };
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -61,7 +83,6 @@ chrome.tabs.onActivated.addListener(() => {
 
 chrome.windows.onFocusChanged.addListener((windowID) => {
     if (windowID == chrome.windows.WINDOW_ID_NONE) {
-        //console.log("All windows lost focus");
         changePage(null);
     } else {
         chrome.windows.getLastFocused({ populate: true }, (window) => {
