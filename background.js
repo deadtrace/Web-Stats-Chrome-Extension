@@ -29,8 +29,15 @@ function badgeTime(time) {
     }
 }
 
-lastTime = time();
-currentURL = "None";
+function shrinkURL(url) {
+    return (new URL(url)).hostname;
+};
+
+let lastTime = time();
+let currentURL;
+chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    currentURL = shrinkURL(tabs[0].url);
+})
 
 function UpdateBadge() {
     var now = time();
@@ -42,10 +49,6 @@ function UpdateBadge() {
 }
 
 setInterval(UpdateBadge, 1000);
-
-function shrinkURL(url) {
-    return (new URL(url)).hostname;
-};
 
 function getActiveTab(tabs) {
     for (i in tabs) {
@@ -86,18 +89,32 @@ chrome.windows.onFocusChanged.addListener((windowID) => {
         chrome.windows.getLastFocused({ populate: true }, (window) => {
             changePage(getActiveTab(window.tabs).url);
         });
+    } else {
+        changePage(null);
     }
 });
 
 var lastState = true;
 function checkBrowserFocus(){
-    chrome.windows.getCurrent((browser) => {
-      if (lastState && !browser.focused){
-          changePage(null);
-          lastState = false;
-      } else if (!lastState && browser.focused){
-          lastState = true;
-      }
+    chrome.windows.getAll(function(windows) {
+        if (lastState) { 
+            for (i in windows) { //все расфокус
+                if (windows[i].focused) {
+                    return;
+                }
+            }
+            changePage(null);
+            lastState = false;
+        }
+        
+        if (!lastState) { //происходит фокус и если был расфокус
+            for (i in windows) {
+                if (windows[i].focused) {
+                    lastState = true;
+                    break;
+                }
+            }
+        }
     })
 }
 
