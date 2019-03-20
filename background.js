@@ -85,7 +85,7 @@ function changePage(url) {
 };
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status == "complete" && tab.active) {
+    if (changeInfo.status == "loading" && tab.active) {
         changePage(shrinkURL(tab.url));
     };
 });

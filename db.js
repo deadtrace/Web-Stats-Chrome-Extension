@@ -2,7 +2,7 @@ console.log("db.js is loaded");
 
 let db;
 
-promiseDB = new Promise(function(resolve, reject) {
+let promiseDB = new Promise(function(resolve, reject) {
     let openRequest = window.indexedDB.open("store", 1);
 
     openRequest.onupgradeneeded = function(e) {
