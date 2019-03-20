@@ -6,7 +6,8 @@ chrome.runtime.onInstalled.addListener(function() {
 		"title": "Посмотреть полную статистику",
 		"contexts": ["browser_action"]
     });
-    chrome.browserAction.setBadgeText({ 'text': '?'});
+
+    chrome.storage.sync.set({"badge": true});
     chrome.browserAction.setBadgeBackgroundColor({ 'color': "black" });
 });
 
@@ -40,10 +41,19 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 })
 
 function UpdateBadge() {
-    var now = time();
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         if (typeof tabs[0] !== "undefined" && lastState){
-            chrome.browserAction.setBadgeText({ 'tabId': tabs[0].id, 'text': badgeTime(now - lastTime)});
+            chrome.storage.sync.get("badge", function(elem) {
+                chrome.browserAction.getBadgeText({ 'tabId': tabs[0].id }, function (BadgeText) {
+                    if (!elem.badge) {
+                        if (BadgeText !== '') {
+                            chrome.browserAction.setBadgeText({ 'tabId': tabs[0].id, 'text': ''});
+                        }
+                        return;
+                    }
+                    chrome.browserAction.setBadgeText({ 'tabId': tabs[0].id, 'text': badgeTime(time() - lastTime)});
+                })
+            });
         }
     });
 }

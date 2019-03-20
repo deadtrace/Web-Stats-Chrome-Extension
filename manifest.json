@@ -18,7 +18,8 @@
     },
     "permissions": [
         "tabs",
-        "contextMenus"
+        "contextMenus",
+        "storage"
     ],
     "commands": {
         "_execute_browser_action": {
