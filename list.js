@@ -6,3 +6,9 @@ getList(null, function(value) {
     div.textContent = value.url+"-".repeat(20)+hour+"h "+min+"m "+sec+"s";
     document.body.appendChild(div);
 });
+
+$('#reset').click(function(){
+    clearDB();
+    alert("Web Stats History was cleared");
+    location.reload();
+})
